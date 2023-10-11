@@ -1,6 +1,8 @@
 import torch
 import numpy as np
-import os, json, random
+import os
+import json
+import random
 
 __all__ = ["ConfLoader", "directory_setter", "random_seeder"]
 
@@ -14,7 +16,7 @@ class ConfLoader:
     class DictWithAttributeAccess(dict):
         """
         This inner class makes dict to be accessed same as class attribute.
-        For example, you can use opt.key instead of the opt['key'].
+        For example, you can use opt.key instead of opt['key'].
         """
 
         def __getattr__(self, key):
@@ -30,14 +32,13 @@ class ConfLoader:
     def __load_conf(self):
         with open(self.conf_name, "r") as conf:
             opt = json.load(
-                conf, object_hook=lambda dict: self.DictWithAttributeAccess(dict)
+                conf, object_hook=lambda content: self.DictWithAttributeAccess(content)
             )
         return opt
 
     def __get_opt(self):
         opt = self.__load_conf()
         opt = self.DictWithAttributeAccess(opt)
-
         return opt
 
 

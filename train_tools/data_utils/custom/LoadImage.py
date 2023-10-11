@@ -87,7 +87,6 @@ class CustomLoadImaged(LoadImaged):
             *args,
             **kwargs,
         )
-
         # Assign CustomLoader
         self._loader = CustomLoadImage(
             reader, image_only, dtype, ensure_channel_first, *args, **kwargs
@@ -129,7 +128,6 @@ class UnifiedITKReader(NumpyReader):
     def read(self, data: Union[Sequence[PathLike], PathLike], **kwargs):
         """Read Images from the file."""
         img_ = []
-
         filenames: Sequence[PathLike] = ensure_tuple(data)
         kwargs_ = self.kwargs.copy()
         kwargs_.update(kwargs)
@@ -143,9 +141,8 @@ class UnifiedITKReader(NumpyReader):
                 try:
                     _obj = itk.imread(name, **kwargs_)
                     _obj = itk.array_view_from_image(_obj, keep_axes=False)
-                except:
+                except:    # TODO: Does it throw RuntimeError?
                     _obj = io.imread(name)
-
             if len(_obj.shape) == 2:
                 _obj = np.repeat(np.expand_dims(_obj, axis=-1), 3, axis=-1)
             elif len(_obj.shape) == 3 and _obj.shape[-1] > 3:

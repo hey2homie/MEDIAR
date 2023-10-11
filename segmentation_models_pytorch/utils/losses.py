@@ -1,7 +1,7 @@
 import torch.nn as nn
 
 from . import base
-from . import functional as F
+from . import functional as f
 from ..base.modules import Activation
 
 
@@ -14,7 +14,7 @@ class JaccardLoss(base.Loss):
 
     def forward(self, y_pr, y_gt):
         y_pr = self.activation(y_pr)
-        return 1 - F.jaccard(
+        return 1 - f.jaccard(
             y_pr,
             y_gt,
             eps=self.eps,
@@ -35,7 +35,7 @@ class DiceLoss(base.Loss):
 
     def forward(self, y_pr, y_gt):
         y_pr = self.activation(y_pr)
-        return 1 - F.f_score(
+        return 1 - f.f_score(
             y_pr,
             y_gt,
             beta=self.beta,

@@ -1,10 +1,11 @@
-import os, glob
-import json
 import argparse
+import glob
+import json
+import os
 
 
 def public_paths_labeled(root):
-    """Map paths for public datasets as dictionary list"""
+    """Map paths for public datasets for the pretraining as dictionary list"""
 
     images_raw = sorted(glob.glob(os.path.join(root, "Public/images/*")))
     labels_raw = sorted(glob.glob(os.path.join(root, "Public/labels/*")))
@@ -29,24 +30,21 @@ def public_paths_labeled(root):
 
 
 def official_paths_labeled(root):
-    """Map paths for official labeled datasets as dictionary list"""
+    """Map paths for official labeled datasets for as dictionary list"""
 
-    image_path = os.path.join(root, "Official/Train_Labeled/images/*")
-    label_path = os.path.join(root, "Official/Train_Labeled/labels/*")
-
-    images_raw = sorted(glob.glob(image_path))
-    labels_raw = sorted(glob.glob(label_path))
+    images_raw = sorted(glob.glob(os.path.join(root, "processed/images/*.png")))
+    labels_raw = sorted([x.split("_")[0] for x in glob.glob(os.path.join(root, "processed/labels/*"))])
 
     data_dicts = []
 
     for image_path, label_path in zip(images_raw, labels_raw):
         name1 = image_path.split("/")[-1].split(".")[0]
-        name2 = label_path.split("/")[-1].split("_label")[0]
+        name2 = label_path.split("/")[-1].split(".")[0]
         assert name1 == name2
 
         data_item = {
-            "img": image_path.split("CellSeg/")[-1],
-            "label": label_path.split("CellSeg/")[-1],
+            "img": image_path,
+            "label": label_path + "_masks.tiff",
         }
 
         data_dicts.append(data_item)
@@ -101,22 +99,14 @@ if __name__ == "__main__":
 
     MAP_DIR = "./train_tools/data_utils/"
 
-    print("\n----------- Path Mapping for Labeled Data is Started... -----------\n")
-
     map_labeled = os.path.join(MAP_DIR, "mapping_labeled.json")
-    map_dict = official_paths_labeled(args.root)
-    add_mapping_to_json(map_labeled, map_dict)
+    mapping = official_paths_labeled(args.root)
+    add_mapping_to_json(map_labeled, mapping)
 
-    print("\n----------- Path Mapping for Tuning Data is Started... -----------\n")
+    # map_labeled = os.path.join(MAP_DIR, "mapping_tuning.json")
+    # map_dict = official_paths_tuning(args.root)
+    # add_mapping_to_json(map_labeled, map_dict)
 
-    map_labeled = os.path.join(MAP_DIR, "mapping_tuning.json")
-    map_dict = official_paths_tuning(args.root)
-    add_mapping_to_json(map_labeled, map_dict)
-
-    print("\n----------- Path Mapping for Public Data is Started... -----------\n")
-
-    map_public = os.path.join(MAP_DIR, "mapping_public.json")
-    map_dict = public_paths_labeled(args.root)
-    add_mapping_to_json(map_public, map_dict)
-
-    print("\n-------------- Path Mapping is Ended !!! ---------------------------\n")
+    # map_public = os.path.join(MAP_DIR, "mapping_public.json")
+    # map_dict = public_paths_labeled(args.root)
+    # add_mapping_to_json(map_public, map_dict)

@@ -21,7 +21,8 @@ class Epoch:
         for metric in self.metrics:
             metric.to(self.device)
 
-    def _format_logs(self, logs):
+    @staticmethod
+    def _format_logs(logs):
         str_logs = ["{} - {:.4}".format(k, v) for k, v in logs.items()]
         s = ", ".join(str_logs)
         return s
@@ -46,7 +47,7 @@ class Epoch:
             dataloader,
             desc=self.stage_name,
             file=sys.stdout,
-            disable=not (self.verbose),
+            disable=not self.verbose,
         ) as iterator:
             for x, y in iterator:
                 x, y = x.to(self.device), y.to(self.device)

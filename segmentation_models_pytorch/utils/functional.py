@@ -24,6 +24,7 @@ def _threshold(x, threshold=None):
         return x
 
 
+# TODO: Create generic metric class
 def iou(pr, gt, eps=1e-7, threshold=None, ignore_channels=None):
     """Calculate Intersection over Union between ground truth and prediction
     Args:
@@ -31,10 +32,11 @@ def iou(pr, gt, eps=1e-7, threshold=None, ignore_channels=None):
         gt (torch.Tensor):  ground truth tensor
         eps (float): epsilon to avoid zero division
         threshold: threshold for outputs binarization
+        ignore_channels:
     Returns:
         float: IoU (Jaccard) score
     """
-
+    # TODO: Add ignore_channels, and threshold
     pr = _threshold(pr, threshold=threshold)
     pr, gt = _take_channels(pr, gt, ignore_channels=ignore_channels)
 
@@ -54,6 +56,7 @@ def f_score(pr, gt, beta=1, eps=1e-7, threshold=None, ignore_channels=None):
         beta (float): positive constant
         eps (float): epsilon to avoid zero division
         threshold: threshold for outputs binarization
+        ignore_channels
     Returns:
         float: F score
     """

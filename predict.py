@@ -1,5 +1,6 @@
 import torch
-import argparse, pprint
+import argparse
+import pprint
 
 from train_tools import *
 from SetupDict import MODELS, PREDICTOR

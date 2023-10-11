@@ -1,5 +1,5 @@
 from . import base
-from . import functional as F
+from . import functional as f
 from ..base.modules import Activation
 
 
@@ -17,7 +17,7 @@ class IoU(base.Metric):
 
     def forward(self, y_pr, y_gt):
         y_pr = self.activation(y_pr)
-        return F.iou(
+        return f.iou(
             y_pr,
             y_gt,
             eps=self.eps,
@@ -45,7 +45,7 @@ class Fscore(base.Metric):
 
     def forward(self, y_pr, y_gt):
         y_pr = self.activation(y_pr)
-        return F.f_score(
+        return f.f_score(
             y_pr,
             y_gt,
             eps=self.eps,
@@ -64,7 +64,7 @@ class Accuracy(base.Metric):
 
     def forward(self, y_pr, y_gt):
         y_pr = self.activation(y_pr)
-        return F.accuracy(
+        return f.accuracy(
             y_pr, y_gt, threshold=self.threshold, ignore_channels=self.ignore_channels,
         )
 
@@ -81,7 +81,7 @@ class Recall(base.Metric):
 
     def forward(self, y_pr, y_gt):
         y_pr = self.activation(y_pr)
-        return F.recall(
+        return f.recall(
             y_pr,
             y_gt,
             eps=self.eps,
@@ -102,7 +102,7 @@ class Precision(base.Metric):
 
     def forward(self, y_pr, y_gt):
         y_pr = self.activation(y_pr)
-        return F.precision(
+        return f.precision(
             y_pr,
             y_gt,
             eps=self.eps,

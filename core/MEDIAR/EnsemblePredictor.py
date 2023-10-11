@@ -1,10 +1,10 @@
 import torch
-import os, sys, copy
-import numpy as np
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.getcwd(), "../../")))
+import os
+import sys
 
 from core.MEDIAR.Predictor import Predictor
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.getcwd(), "../../")))
 
 __all__ = ["EnsemblePredictor"]
 
@@ -66,9 +66,8 @@ class EnsemblePredictor(Predictor):
 
             outputs_hflip = outputs_hflip.cpu().squeeze()
             outputs_hflip_aux = outputs_hflip_aux.cpu().squeeze()
-            img_hflip = img_hflip.cpu()
 
-            # VertricalFlip TTA
+            # VerticalFlip TTA
             img_vflip = self.vflip_tta.apply_aug_image(img_data, apply=True)
 
             outputs_vflip = self._window_inference(img_vflip)
@@ -81,7 +80,6 @@ class EnsemblePredictor(Predictor):
 
             outputs_vflip = outputs_vflip.cpu().squeeze()
             outputs_vflip_aux = outputs_vflip_aux.cpu().squeeze()
-            img_vflip = img_vflip.cpu()
 
             # Merge Results
             pred_mask = torch.zeros_like(outputs_base)

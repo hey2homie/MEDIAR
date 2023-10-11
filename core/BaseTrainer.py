@@ -1,6 +1,9 @@
-import torch
+import copy
+import os
+import sys
+
 import numpy as np
-from tqdm import tqdm
+import torch
 from monai.inferers import sliding_window_inference
 from monai.metrics import CumulativeAverage
 from monai.transforms import (
@@ -9,14 +12,12 @@ from monai.transforms import (
     Compose,
     EnsureType,
 )
-
-import os, sys
-import copy
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.getcwd(), "../")))
+from tqdm import tqdm
 
 from core.utils import print_learning_device, print_with_logging
 from train_tools.measures import evaluate_f1_score_cellseg
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.getcwd(), "../")))
 
 
 class BaseTrainer:
@@ -51,12 +52,15 @@ class BaseTrainer:
 
         # FP-16 Scaler
         self.scaler = torch.cuda.amp.GradScaler() if amp else None
+        # TODO: Check the updates on the pull request for the GradScaler on MPS
+        # https://github.com/pytorch/pytorch/pull/99272
+        # For now, the turning this off in the config (line 39)
 
-        # Assign algoritm-specific arguments
+        # Assign algorithm-specific arguments
         if algo_params:
             self.__dict__.update((k, v) for k, v in algo_params.items())
 
-        # Cumulitive statistics
+        # Cumulative statistics
         self.loss_metric = CumulativeAverage()
         self.f1_metric = CumulativeAverage()
 
@@ -153,6 +157,10 @@ class BaseTrainer:
         cell_counts_total = []
         self.model.eval()
 
+        if self.dataloaders["tuning"] is None:
+            print("No tuning set provided: returning")
+            return cell_counts_total
+
         for batch_data in tqdm(self.dataloaders["tuning"]):
             images = batch_data["img"].to(self.device)
             if images.shape[-1] > 5000:
@@ -173,11 +181,12 @@ class BaseTrainer:
             cell_counts_total.append(count)
 
         cell_counts_total_sum = np.sum(cell_counts_total)
-        print("Cell Counts Total: (%d)" % (cell_counts_total_sum))
+        print("Cell Counts Total: (%d)" % cell_counts_total_sum)
 
         return cell_counts_total_sum
 
-    def _update_results(self, phase_results, metric, metric_key, phase="train"):
+    @staticmethod
+    def _update_results(phase_results, metric, metric_key, phase="train"):
         """Aggregate and flush metrics
 
         Args:
@@ -234,7 +243,8 @@ class BaseTrainer:
     def _post_process(self, outputs, labels):
         return outputs, labels
 
-    def _get_f1_metric(self, masks_pred, masks_true):
+    @staticmethod
+    def _get_f1_metric(masks_pred, masks_true):
         f1_score = evaluate_f1_score_cellseg(masks_true, masks_pred)[-1]
 
         return f1_score

@@ -23,7 +23,7 @@ __all__ = [
 def get_dataloaders_labeled(
     root,
     mapping_file,
-    mapping_file_tuning,
+    mapping_file_tuning=False,
     join_mapping_file=None,
     valid_portion=0.0,
     batch_size=8,
@@ -35,18 +35,19 @@ def get_dataloaders_labeled(
     Args:
         root (str): root directory
         mapping_file (str): json file for mapping dataset
+        mapping_file_tuning (str, optional): json file for mapping tuning dataset. Defaults to None.
+        join_mapping_file (str, optional):
         valid_portion (float, optional): portion of valid datasets. Defaults to 0.1.
         batch_size (int, optional): batch size. Defaults to 8.
-        shuffle (bool, optional): shuffles dataloader. Defaults to True.
-        num_workers (int, optional): number of workers for each datalaoder. Defaults to 5.
-
+        amplified (bool, optional):
+        relabel (bool, optional):
     Returns:
         dict: dictionary of data loaders.
     """
-
+    # TODO: Add missing docstring
     # Get list of data dictionaries from decoded paths
     data_dicts = path_decoder(root, mapping_file)
-    tuning_dicts = path_decoder(root, mapping_file_tuning, no_label=True)
+
 
     if amplified:
         with open(DATA_LABEL_DICT_PICKLE_FILE, "rb") as f:
@@ -60,7 +61,7 @@ def get_dataloaders_labeled(
             for d_idx in data_lst:
                 try:
                     data_point_dict[label].append(data_dicts[d_idx])
-                except:
+                except IndexError:  # TODO: Does it throw IndexError?
                     print(label, d_idx)
 
         data_dicts = []
@@ -89,34 +90,34 @@ def get_dataloaders_labeled(
                     "/CellSeg/pretrained_train_ext/",
                 )
                 elem["label"] = new_label
-
+    print("!")
     # Split datasets as Train/Valid
     train_dicts, valid_dicts = split_train_valid(
         data_dicts, valid_portion=valid_portion
     )
 
     # Obtain datasets with transforms
-    trainset = Dataset(train_dicts, transform=data_transforms)
-    validset = Dataset(valid_dicts, transform=valid_transforms)
-    tuningset = Dataset(tuning_dicts, transform=tuning_transforms)
+    train_set = Dataset(train_dicts, transform=data_transforms)
+    valid_set = Dataset(valid_dicts, transform=valid_transforms)
 
-    # Set dataloader for Trainset
+    # Set dataloader for train_set
     train_loader = DataLoader(
-        trainset, batch_size=batch_size, shuffle=True, num_workers=5
+        train_set, batch_size=batch_size, shuffle=True, num_workers=5
     )
 
-    # Set dataloader for Validset (Batch size is fixed as 1)
-    valid_loader = DataLoader(validset, batch_size=1, shuffle=False,)
+    # Set dataloader for valid_set (Batch size is fixed as 1)
+    valid_loader = DataLoader(valid_set, batch_size=1, shuffle=False,)
 
-    # Set dataloader for Tuningset (Batch size is fixed as 1)
-    tuning_loader = DataLoader(tuningset, batch_size=1, shuffle=False)
-
-    # Form dataloaders as dictionary
     dataloaders = {
         "train": train_loader,
         "valid": valid_loader,
-        "tuning": tuning_loader,
     }
+
+    if mapping_file_tuning:
+        tuning_dicts = path_decoder(root, mapping_file_tuning, no_label=True)
+        tuningset = Dataset(tuning_dicts, transform=tuning_transforms)
+        tuning_loader = DataLoader(tuningset, batch_size=1, shuffle=False)
+        dataloaders["tuning"] = tuning_loader
 
     return dataloaders
 
@@ -131,8 +132,6 @@ def get_dataloaders_public(
         mapping_file (str): json file for mapping dataset
         valid_portion (float, optional): portion of valid datasets. Defaults to 0.1.
         batch_size (int, optional): batch size. Defaults to 8.
-        shuffle (bool, optional): shuffles dataloader. Defaults to True.
-
     Returns:
         dict: dictionary of data loaders.
     """
@@ -143,10 +142,10 @@ def get_dataloaders_public(
     # Split datasets as Train/Valid
     train_dicts, _ = split_train_valid(data_dicts, valid_portion=valid_portion)
 
-    trainset = Dataset(train_dicts, transform=public_transforms)
-    # Set dataloader for Trainset
+    train_set = Dataset(train_dicts, transform=public_transforms)
+    # Set dataloader for train_set
     train_loader = DataLoader(
-        trainset, batch_size=batch_size, shuffle=True, num_workers=5
+        train_set, batch_size=batch_size, shuffle=True, num_workers=5
     )
 
     # Form dataloaders as dictionary
@@ -180,29 +179,29 @@ def get_dataloaders_unlabeled(
     return dataloaders
 
 
-def get_dataloaders_unlabeled_psuedo(
+def get_dataloaders_unlabeled_pseudo(
     root, mapping_file, batch_size=8, shuffle=True, num_workers=5,
 ):
 
     # Get list of data dictionaries from decoded paths
-    unlabeled_psuedo_dicts = path_decoder(
+    unlabeled_pseudo_dicts = path_decoder(
         root, mapping_file, no_label=False, unlabeled=True
     )
 
     # Obtain datasets with transforms
-    unlabeled_psuedo_dicts, _ = split_train_valid(
-        unlabeled_psuedo_dicts, valid_portion=0
+    unlabeled_pseudo_dicts, _ = split_train_valid(
+        unlabeled_pseudo_dicts, valid_portion=0
     )
-    unlabeled_psuedo_set = Dataset(unlabeled_psuedo_dicts, transform=train_transforms)
+    unlabeled_pseudo_set = Dataset(unlabeled_pseudo_dicts, transform=train_transforms)
 
     # Set dataloader for Unlabeled dataset
-    unlabeled_psuedo_loader = DataLoader(
-        unlabeled_psuedo_set,
+    unlabeled_pseudo_loader = DataLoader(
+        unlabeled_pseudo_set,
         batch_size=batch_size,
         shuffle=shuffle,
         num_workers=num_workers,
     )
 
-    dataloaders = {"unlabeled": unlabeled_psuedo_loader}
+    dataloaders = {"unlabeled": unlabeled_pseudo_loader}
 
     return dataloaders

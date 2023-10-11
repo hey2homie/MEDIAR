@@ -1,14 +1,15 @@
-import torch
-import torch.nn as nn
-import numpy as np
-import os, sys
-from tqdm import tqdm
-from monai.inferers import sliding_window_inference
+import os
+import sys
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.getcwd(), "../../")))
+import torch.nn as nn
+from monai.inferers import sliding_window_inference
+from tqdm import tqdm
 
 from core.BaseTrainer import BaseTrainer
 from core.MEDIAR.utils import *
+
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.getcwd(), "../../")))
 
 __all__ = ["Trainer"]
 
@@ -71,8 +72,7 @@ class Trainer(BaseTrainer):
         # Epoch process
         for batch_data in tqdm(self.dataloaders[phase]):
             images, labels = batch_data["img"], batch_data["label"]
-
-            if self.with_public:
+            """if self.with_public:
                 # Load batches sequentially from the unlabeled dataloader
                 try:
                     batch_data = next(self.public_iterator)
@@ -86,7 +86,7 @@ class Trainer(BaseTrainer):
 
                 # Concat memory data to the batch
                 images = torch.cat([images, images_pub], dim=0)
-                labels = torch.cat([labels, labels_pub], dim=0)
+                labels = torch.cat([labels, labels_pub], dim=0)"""
 
             images = images.to(self.device)
             labels = labels.to(self.device)

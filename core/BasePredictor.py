@@ -1,10 +1,11 @@
-import torch
-import numpy as np
-import time, os
-import tifffile as tif
-
+import os
+import time
 from datetime import datetime
 from zipfile import ZipFile
+
+import numpy as np
+import tifffile as tif
+import torch
 from pytz import timezone
 
 from train_tools.data_utils.transforms import get_pred_transforms
@@ -28,7 +29,7 @@ class BasePredictor:
         self.make_submission = make_submission
         self.exp_name = exp_name
 
-        # Assign algoritm-specific arguments
+        # Assign algorithm-specific arguments
         if algo_params:
             self.__dict__.update((k, v) for k, v in algo_params.items())
 
@@ -37,6 +38,7 @@ class BasePredictor:
 
     @torch.no_grad()
     def conduct_prediction(self):
+        time_cost = 0
         self.model.to(self.device)
         self.model.eval()
         total_time = 0
@@ -81,7 +83,8 @@ class BasePredictor:
 
         return time_cost
 
-    def write_pred_mask(self, pred_mask, output_dir, image_name, submission=False):
+    @staticmethod
+    def write_pred_mask(pred_mask, output_dir, image_name, submission=False):
 
         # All images should contain at least 5 cells
         if submission:
@@ -91,14 +94,14 @@ class BasePredictor:
         file_name = image_name.split(".")[0]
         file_name = file_name + "_label.tiff"
         file_path = os.path.join(output_dir, file_name)
-
-        tif.imwrite(file_path, pred_mask, compression="zlib")
+        tif.imwrite(file_path, pred_mask, kwargs={"compression": "zlib"})
 
     def _setups(self):
         self.pred_transforms = get_pred_transforms()
         os.makedirs(self.output_path, exist_ok=True)
 
         now = datetime.now(timezone("Asia/Seoul"))
+        # TODO: Change the time stamps
         dt_string = now.strftime("%m%d_%H%M")
         self.exp_name = (
             self.exp_name + dt_string if self.exp_name is not None else dt_string

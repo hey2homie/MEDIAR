@@ -9,13 +9,13 @@ def print_learning_device(device):
     """Get and print the learning device information."""
     if device == "cpu":
         device_name = device
-
+    elif device == "mps":
+        device_name = device
     else:
         if isinstance(device, str):
             device_idx = int(device[-1])
-        elif isinstance(device, torch._device):
+        else:
             device_idx = device.index
-
         device_name = torch.cuda.get_device_name(device_idx)
 
     print("")

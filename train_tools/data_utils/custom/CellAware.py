@@ -12,7 +12,7 @@ __all__ = ["BoundaryExclusion", "IntensityDiversification"]
 class BoundaryExclusion(MapTransform):
     """Map the cell boundary pixel labels to the background class (0)."""
 
-    def __init__(self, keys=["label"], allow_missing_keys=False):
+    def __init__(self, keys="label", allow_missing_keys=False):
         super(BoundaryExclusion, self).__init__(keys, allow_missing_keys)
 
     def __call__(self, data):
@@ -33,9 +33,9 @@ class BoundaryExclusion(MapTransform):
                 new_label[label_original == cell_idx[k]] = cell_idx[k]
 
         # Do not exclude if the pixels are at the image boundaries.
-        _, W, H = label_original.shape
+        _, w, h = label_original.shape
         bd = np.zeros_like(label_original, dtype=label.dtype)
-        bd[:, 2 : W - 2, 2 : H - 2] = 1
+        bd[:, 2: w - 2, 2: h - 2] = 1
         new_label += label_original * bd
 
         # Assign the transformed label
@@ -49,9 +49,9 @@ class IntensityDiversification(MapTransform):
 
     def __init__(
         self,
-        keys=["img"],
+        keys="img",
         change_cell_ratio=0.4,
-        scale_factors=[0, 0.7],
+        scale_factors=(0, 0.7),
         allow_missing_keys=False,
     ):
         super(IntensityDiversification, self).__init__(keys, allow_missing_keys)

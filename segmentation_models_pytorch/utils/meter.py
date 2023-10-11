@@ -6,6 +6,15 @@ class Meter(object):
     This class is abstract, but provides a standard interface for all meters to follow.
     """
 
+    def __init__(self):
+        self.m_s = None
+        self.mean = None
+        self.mean_old = None
+        self.var = None
+        self.std = None
+        self.sum = None
+        self.n = None
+
     def reset(self):
         """Reset the meter to default settings."""
         pass

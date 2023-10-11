@@ -3,10 +3,10 @@ import numpy as np
 import os, sys
 from monai.inferers import sliding_window_inference
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.getcwd(), "../../")))
-
 from core.BasePredictor import BasePredictor
 from core.MEDIAR.utils import compute_masks
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.getcwd(), "../../")))
 
 __all__ = ["Predictor"]
 
@@ -131,12 +131,12 @@ class Predictor(BasePredictor):
                     print("Pred on Grid (%d, %d) processing..." % (i, j))
                     dP_roi = dP_pad[
                         :,
-                        roi_size * i : roi_size * (i + 1),
-                        roi_size * j : roi_size * (j + 1),
+                        roi_size * i: roi_size * (i + 1),
+                        roi_size * j: roi_size * (j + 1),
                     ]
                     cellprob_roi = cellprob_pad[
-                        roi_size * i : roi_size * (i + 1),
-                        roi_size * j : roi_size * (j + 1),
+                        roi_size * i: roi_size * (i + 1),
+                        roi_size * j: roi_size * (j + 1),
                     ]
 
                     pred_mask = compute_masks(
@@ -149,15 +149,16 @@ class Predictor(BasePredictor):
                     )[0]
 
                     pred_pad[
-                        roi_size * i : roi_size * (i + 1),
-                        roi_size * j : roi_size * (j + 1),
+                        roi_size * i: roi_size * (i + 1),
+                        roi_size * j: roi_size * (j + 1),
                     ] = pred_mask
 
             pred_mask = pred_pad[:H, :W]
 
         return pred_mask
 
-    def _sigmoid(self, z):
+    @staticmethod
+    def _sigmoid(z):
         return 1 / (1 + np.exp(-z))
 
 

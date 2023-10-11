@@ -1,7 +1,8 @@
 import torch
 import os
 import wandb
-import argparse, pprint
+import argparse
+import pprint
 
 from train_tools import *
 from SetupDict import TRAINER, OPTIMIZER, SCHEDULER, MODELS, PREDICTOR
@@ -83,7 +84,6 @@ def main(args):
 
     # Watch parameters & gradients of model
     wandb.watch(trainer.model, log="all", log_graph=True)
-
     # Conduct experiment
     trainer.train()
 

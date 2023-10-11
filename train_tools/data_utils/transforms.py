@@ -7,7 +7,10 @@ __all__ = [
     "valid_transforms",
     "tuning_transforms",
     "unlabeled_transforms",
+    "get_pred_transforms"
 ]
+
+# TODO: Parent class with common transforms and all the transforms should inherit from it with additions
 
 train_transforms = Compose(
     [
@@ -19,9 +22,10 @@ train_transforms = Compose(
             channel_wise=False,
             percentiles=[0.0, 99.5],
         ),
-        AsChannelFirstd(keys=["img", "label"], channel_dim=-1),
+        EnsureChannelFirstd(keys=["img", "label"], channel_dim=-1),
         RemoveRepeatedChanneld(keys=["label"], repeats=3),  # label: (H, W)
         ScaleIntensityd(keys=["img"], allow_missing_keys=True),  # Do not scale label
+        
         # >>> Spatial transforms
         RandZoomd(
             keys=["img", "label"],
@@ -34,9 +38,11 @@ train_transforms = Compose(
         SpatialPadd(keys=["img", "label"], spatial_size=512),
         RandSpatialCropd(keys=["img", "label"], roi_size=512, random_size=False),
         RandAxisFlipd(keys=["img", "label"], prob=0.5),
-        RandRotate90d(keys=["img", "label"], prob=0.5, spatial_axes=[0, 1]),
+        RandRotate90d(keys=["img", "label"], prob=0.5, spatial_axes=(0, 1)),
         IntensityDiversification(keys=["img", "label"], allow_missing_keys=True),
+        
         # # >>> Intensity transforms
+        
         RandGaussianNoised(keys=["img"], prob=0.25, mean=0, std=0.1),
         RandAdjustContrastd(keys=["img"], prob=0.25, gamma=(1, 2)),
         RandGaussianSmoothd(keys=["img"], prob=0.25, sigma_x=(1, 2)),
@@ -57,14 +63,14 @@ public_transforms = Compose(
             channel_wise=False,
             percentiles=[0.0, 99.5],
         ),
-        AsChannelFirstd(keys=["img", "label"], channel_dim=-1),
+        EnsureChannelFirstd(keys=["img", "label"], channel_dim=-1),
         RemoveRepeatedChanneld(keys=["label"], repeats=3),  # label: (H, W)
         ScaleIntensityd(keys=["img"], allow_missing_keys=True),  # Do not scale label
         # >>> Spatial transforms
         SpatialPadd(keys=["img", "label"], spatial_size=512),
         RandSpatialCropd(keys=["img", "label"], roi_size=512, random_size=False),
         RandAxisFlipd(keys=["img", "label"], prob=0.5),
-        RandRotate90d(keys=["img", "label"], prob=0.5, spatial_axes=[0, 1]),
+        RandRotate90d(keys=["img", "label"], prob=0.5, spatial_axes=(0, 1)),
         EnsureTyped(keys=["img", "label"]),
     ]
 )
@@ -79,7 +85,7 @@ valid_transforms = Compose(
             channel_wise=False,
             percentiles=[0.0, 99.5],
         ),
-        AsChannelFirstd(keys=["img", "label"], allow_missing_keys=True, channel_dim=-1),
+        EnsureChannelFirstd(keys=["img", "label"], allow_missing_keys=True, channel_dim=-1),
         RemoveRepeatedChanneld(keys=["label"], repeats=3),
         ScaleIntensityd(keys=["img"], allow_missing_keys=True),
         EnsureTyped(keys=["img", "label"], allow_missing_keys=True),
@@ -95,7 +101,7 @@ tuning_transforms = Compose(
             channel_wise=False,
             percentiles=[0.0, 99.5],
         ),
-        AsChannelFirstd(keys=["img"], channel_dim=-1),
+        EnsureChannelFirstd(keys=["img"], channel_dim=-1),
         ScaleIntensityd(keys=["img"]),
         EnsureTyped(keys=["img"]),
     ]
@@ -111,7 +117,7 @@ unlabeled_transforms = Compose(
             channel_wise=False,
             percentiles=[0.0, 99.5],
         ),
-        AsChannelFirstd(keys=["img"], channel_dim=-1),
+        EnsureChannelFirstd(keys=["img"], channel_dim=-1),
         RandZoomd(
             keys=["img"],
             prob=0.5,

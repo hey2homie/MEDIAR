@@ -4,17 +4,14 @@ import monai
 
 import core
 from train_tools import models
-from train_tools.models import *
 
-__all__ = ["TRAINER", "OPTIMIZER", "SCHEDULER"]
+__all__ = ["TRAINER", "PREDICTOR", "MODELS", "OPTIMIZER", "SCHEDULER"]
 
 TRAINER = {
-    "baseline": core.Baseline.Trainer,
     "mediar": core.MEDIAR.Trainer,
 }
 
 PREDICTOR = {
-    "baseline": core.Baseline.Predictor,
     "mediar": core.MEDIAR.Predictor,
     "ensemble_mediar": core.MEDIAR.EnsemblePredictor,
 }

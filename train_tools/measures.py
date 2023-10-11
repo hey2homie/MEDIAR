@@ -27,45 +27,45 @@ def evaluate_f1_score_cellseg(masks_true, masks_pred, threshold=0.5):
 
     # Compute by Patch-based way for large images
     else:
-        H, W = masks_true.shape
+        h, w = masks_true.shape
         roi_size = 2000
 
         # Get patch grid by roi_size
-        if H % roi_size != 0:
-            n_H = H // roi_size + 1
-            new_H = roi_size * n_H
+        if h % roi_size != 0:
+            n_h = h // roi_size + 1
+            new_h = roi_size * n_h
         else:
-            n_H = H // roi_size
-            new_H = H
+            n_h = h // roi_size
+            new_h = h
 
-        if W % roi_size != 0:
-            n_W = W // roi_size + 1
-            new_W = roi_size * n_W
+        if w % roi_size != 0:
+            n_w = w // roi_size + 1
+            new_w = roi_size * n_w
         else:
-            n_W = W // roi_size
-            new_W = W
+            n_w = w // roi_size
+            new_w = w
 
         # Allocate values on the grid
-        gt_pad = np.zeros((new_H, new_W), dtype=masks_true.dtype)
-        pred_pad = np.zeros((new_H, new_W), dtype=masks_true.dtype)
-        gt_pad[:H, :W] = masks_true
-        pred_pad[:H, :W] = masks_pred
+        gt_pad = np.zeros((new_h, new_w), dtype=masks_true.dtype)
+        pred_pad = np.zeros((new_h, new_w), dtype=masks_true.dtype)
+        gt_pad[:h, :w] = masks_true
+        pred_pad[:h, :w] = masks_pred
 
         tp, fp, fn = 0, 0, 0
 
         # Calculate confusion elements for each patch
-        for i in range(n_H):
-            for j in range(n_W):
+        for i in range(n_h):
+            for j in range(n_w):
                 gt_roi = _remove_boundary_cells(
                     gt_pad[
-                        roi_size * i : roi_size * (i + 1),
-                        roi_size * j : roi_size * (j + 1),
+                        roi_size * i: roi_size * (i + 1),
+                        roi_size * j: roi_size * (j + 1),
                     ]
                 )
                 pred_roi = _remove_boundary_cells(
                     pred_pad[
-                        roi_size * i : roi_size * (i + 1),
-                        roi_size * j : roi_size * (j + 1),
+                        roi_size * i: roi_size * (i + 1),
+                        roi_size * j: roi_size * (j + 1),
                     ]
                 )
                 tp_i, fp_i, fn_i = get_confusion(gt_roi, pred_roi, threshold)
@@ -98,9 +98,9 @@ def _remove_boundary_cells(mask):
     """Remove cells on the boundary from the mask"""
 
     # Identify boundary cells
-    W, H = mask.shape
-    bd = np.ones((W, H))
-    bd[2 : W - 2, 2 : H - 2] = 0
+    w, h = mask.shape
+    bd = np.ones((w, h))
+    bd[2: w - 2, 2: h - 2] = 0
     bd_cells = np.unique(mask * bd)
 
     # Remove cells on the boundary
@@ -142,7 +142,7 @@ def _get_true_positive(iou, threshold=0.5):
     num_matched = min(iou.shape[0], iou.shape[1])
 
     # Find optimal matching by using IoU as tie-breaker
-    costs = -(iou >= threshold).astype(np.float) - iou / (2 * num_matched)
+    costs = -(iou >= threshold).astype(np.float32) - iou / (2 * num_matched)
     matched_gt_label, matched_pred_label = linear_sum_assignment(costs)
 
     # Consider as the same instance only if the IoU is above the threshold

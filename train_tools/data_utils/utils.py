@@ -40,11 +40,11 @@ def path_decoder(root, mapping_file, no_label=False, unlabeled=False):
         root (str):
         mapping_file (str): json file containing image & label file paths.
         no_label (bool, optional): whether to include "label" key. Defaults to False.
-
+        unlabeled (bool, optional):
     Returns:
         list: list of dictionary. (ex. [{"img": img_path, "label": label_path}, ...])
     """
-
+    # TODO: What is exactly the unlabeled option?
     data_dicts = []
 
     with open(mapping_file, "r") as file:
@@ -55,7 +55,7 @@ def path_decoder(root, mapping_file, no_label=False, unlabeled=False):
             # If no_label, assign "img" key only
             if no_label:
                 data_dict_item = [
-                    {"img": os.path.join(root, elem["img"]),} for elem in data[map_key]
+                    {"img": os.path.join(root, elem["img"]), } for elem in data[map_key]
                 ]
 
             # If label exists, assign both "img" and "label" keys
@@ -74,7 +74,7 @@ def path_decoder(root, mapping_file, no_label=False, unlabeled=False):
     if unlabeled:
         refined_data_dicts = []
 
-        # Exclude the corrupted image to prevent errror
+        # Exclude the corrupted image to prevent error
         for data_dict in data_dicts:
             if "00504" not in data_dict["img"]:
                 refined_data_dicts.append(data_dict)

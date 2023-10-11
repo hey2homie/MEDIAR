@@ -19,7 +19,7 @@ __all__ = [
 class CustomNormalizeImage(Transform):
     """Normalize the image."""
 
-    def __init__(self, percentiles=[0, 99.5], channel_wise=False):
+    def __init__(self, percentiles=(0, 99.5), channel_wise=False):
         self.lower, self.upper = percentiles
         self.channel_wise = channel_wise
 
@@ -30,7 +30,7 @@ class CustomNormalizeImage(Transform):
             img, in_range=(percentiles[0], percentiles[1]), out_range="uint8"
         )
 
-        return img_norm.astype(np.uint8)
+        return np.array(img_norm)
 
     def __call__(self, img: np.ndarray) -> np.ndarray:
         if self.channel_wise:
@@ -52,14 +52,10 @@ class CustomNormalizeImage(Transform):
 class CustomNormalizeImaged(MapTransform):
     """Dictionary-based wrapper of NormalizeImage"""
 
-    def __init__(
-        self,
-        keys: KeysCollection,
-        percentiles=[1, 99],
-        channel_wise: bool = False,
-        allow_missing_keys: bool = False,
-    ):
+    def __init__(self, keys: KeysCollection, percentiles=(1, 99), channel_wise: bool = False,
+                 allow_missing_keys: bool = False):
         super(CustomNormalizeImageD, self).__init__(keys, allow_missing_keys)
+        super().__init__(keys, allow_missing_keys)
         self.normalizer = CustomNormalizeImage(percentiles, channel_wise)
 
     def __call__(

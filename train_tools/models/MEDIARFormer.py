@@ -1,11 +1,13 @@
+import os
+import sys
+
 import torch
 import torch.nn as nn
-import os, sys
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.getcwd(), "../../")))
 
 from segmentation_models_pytorch import MAnet
 from segmentation_models_pytorch.base.modules import Activation
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.getcwd(), "../../")))
 
 __all__ = ["MEDIARFormer"]
 
@@ -30,7 +32,6 @@ class MEDIARFormer(MAnet):
             in_channels=in_channels,
             classes=classes,
         )
-
         # Delete MAnet Head
         self.segmentation_head = None
 
@@ -38,10 +39,10 @@ class MEDIARFormer(MAnet):
         convert_relu_to_mish(self.encoder)
         convert_relu_to_mish(self.decoder)
 
-        self.cellprob_head = DeepSegmantationHead(
+        self.cellprob_head = DeepSegmentationHead(
             in_channels=decoder_channels[-1], out_channels=1, kernel_size=3,
         )
-        self.gradflow_head = DeepSegmantationHead(
+        self.gradflow_head = DeepSegmentationHead(
             in_channels=decoder_channels[-1], out_channels=2, kernel_size=3,
         )
 
@@ -60,7 +61,7 @@ class MEDIARFormer(MAnet):
         return masks
 
 
-class DeepSegmantationHead(nn.Sequential):
+class DeepSegmentationHead(nn.Sequential):
     """SegmentationHead for Cell Probability & Grad Flows"""
 
     def __init__(
@@ -91,7 +92,7 @@ class DeepSegmantationHead(nn.Sequential):
 
 
 def convert_relu_to_mish(model):
-    """Convert ReLU atcivation to Mish"""
+    """Convert ReLU activation to Mish"""
     for child_name, child in model.named_children():
         if isinstance(child, nn.ReLU):
             setattr(model, child_name, nn.Mish(inplace=True))
