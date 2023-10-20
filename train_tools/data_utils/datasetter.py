@@ -23,8 +23,6 @@ __all__ = [
 def get_dataloaders_labeled(
     root,
     mapping_file,
-    mapping_file_tuning=False,
-    join_mapping_file=None,
     valid_portion=0.0,
     batch_size=8,
     amplified=False,
@@ -35,8 +33,6 @@ def get_dataloaders_labeled(
     Args:
         root (str): root directory
         mapping_file (str): json file for mapping dataset
-        mapping_file_tuning (str, optional): json file for mapping tuning dataset. Defaults to None.
-        join_mapping_file (str, optional):
         valid_portion (float, optional): portion of valid datasets. Defaults to 0.1.
         batch_size (int, optional): batch size. Defaults to 8.
         amplified (bool, optional):
@@ -77,10 +73,6 @@ def get_dataloaders_labeled(
 
     data_transforms = train_transforms
 
-    if join_mapping_file is not None:
-        data_dicts += path_decoder(root, join_mapping_file)
-        data_transforms = public_transforms
-
     if relabel:
         for elem in data_dicts:
             cell_idx = int(elem["label"].split("_label.tiff")[0].split("_")[-1])
@@ -112,12 +104,6 @@ def get_dataloaders_labeled(
         "train": train_loader,
         "valid": valid_loader,
     }
-
-    if mapping_file_tuning:
-        tuning_dicts = path_decoder(root, mapping_file_tuning, no_label=True)
-        tuningset = Dataset(tuning_dicts, transform=tuning_transforms)
-        tuning_loader = DataLoader(tuningset, batch_size=1, shuffle=False)
-        dataloaders["tuning"] = tuning_loader
 
     return dataloaders
 

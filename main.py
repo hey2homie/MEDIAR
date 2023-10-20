@@ -4,10 +4,10 @@ import wandb
 import argparse
 import pprint
 
-from train_tools import *
+from train_tools import ConfLoader, random_seeder
+from train_tools.data_utils import datasetter
 from SetupDict import TRAINER, OPTIMIZER, SCHEDULER, MODELS, PREDICTOR
 
-# Ignore warnings for tiffle image reading
 import logging
 
 logging.getLogger().setLevel(logging.ERROR)
@@ -31,7 +31,7 @@ def _get_setups(args):
         model.load_state_dict(weights, strict=model_args.pretrained.strict)
 
     # Set dataloaders
-    dataloaders = datasetter.get_dataloaders_labeled(**args.data_setups.labeled)
+    dataloaders = datasetter.get_dataloaders_labeled(**args.data)
 
     # Set optimizer
     optimizer_args = args.train_setups.optimizer
@@ -53,16 +53,8 @@ def _get_setups(args):
     )
 
     # Check if no validation
-    if args.data_setups.labeled.valid_portion == 0:
+    if args.data.valid_portion == 0:
         trainer.no_valid = True
-
-    # Set public dataloader
-    if args.data_setups.public.enabled:
-        dataloaders = datasetter.get_dataloaders_public(
-            **args.data_setups.public.params
-        )
-        trainer.public_loader = dataloaders["public"]
-        trainer.public_iterator = iter(dataloaders["public"])
 
     return trainer
 

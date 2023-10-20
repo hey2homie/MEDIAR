@@ -1,0 +1,63 @@
+{
+    "data": {
+        "root": "./",
+        "mapping_file": "./config/mapping_labeled.json",
+        "amplified": false,
+        "batch_size": 4,
+        "valid_portion": 0.1
+    },
+    "train_setups": {
+        "model": {
+            "name": "mediar-former",
+            "params": {
+                "encoder_name": "mit_b5",
+                "decoder_channels": [1024, 512, 256, 128, 64],
+                "decoder_pab_channels": 256,
+                "in_channels":3,
+                "classes":3
+            },
+            "pretrained": {
+                "enabled": false,
+                "weights": "./weights/pretrained/phase1.pth",
+                "strict": false
+            }
+        },
+        "trainer": {
+            "name": "mediar",
+            "params": {            
+                "num_epochs": 60,
+                "valid_frequency": 10,
+                "device": "cpu",
+                "amp": false
+            }
+        },
+        "optimizer": {
+            "name": "adamw",
+            "ft_rate": 1.0,
+            "params": {
+                "lr": 5e-5
+            }
+        },
+        "scheduler": {
+            "enabled": true,
+            "name": "cosine",
+            "params": {
+                "T_max": 60,
+                "eta_min": 1e-6
+            }
+        },
+        "seed": 19940817
+    },
+    "pred_setups": {
+        "input_path": "",
+        "output_path": "",
+        "algo_params": {
+            "use_tta": false
+        }
+    },
+    "wandb_setups": {
+        "project": "Akoya Data",
+        "group": "Test",
+        "name": "Test Configs"
+    }
+}
