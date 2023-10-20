@@ -12,7 +12,7 @@ torch.set_printoptions(6)
 def main(args):
     """Execute prediction and save the results"""
 
-    model_args = args.pred_setups.model
+    model_args = args.pred_setups.model_path1
     model = MODELS[model_args.name](**model_args.params)
 
     if "ensemble" in args.pred_setups.name:
@@ -35,7 +35,7 @@ def main(args):
         )
 
     else:
-        weights = torch.load(args.pred_setups.model_path, map_location="cpu")
+        weights = torch.load(args.pred_setups.model_path_1, map_location="cpu")
         model.load_state_dict(weights, strict=False)
 
         predictor = PREDICTOR[args.pred_setups.name](
