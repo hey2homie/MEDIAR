@@ -31,7 +31,7 @@ def _get_setups(args):
         model.load_state_dict(weights, strict=model_args.pretrained.strict)
 
     # Set dataloaders
-    dataloaders = datasetter.get_dataloaders_labeled(**args.data)
+    dataloaders = datasetter.get_dataloaders(**args.data)
 
     # Set optimizer
     optimizer_args = args.train_setups.optimizer
