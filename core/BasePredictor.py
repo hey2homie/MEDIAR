@@ -8,7 +8,7 @@ import tifffile as tif
 import torch
 from pytz import timezone
 
-from train_tools.data_utils.transforms import get_pred_transforms
+from train_tools.data_utils.transforms import PredictionTransforms
 
 
 class BasePredictor:
@@ -97,7 +97,7 @@ class BasePredictor:
         tif.imwrite(file_path, pred_mask, kwargs={"compression": "zlib"})
 
     def _setups(self):
-        self.pred_transforms = get_pred_transforms()
+        self.pred_transforms = PredictionTransforms().transforms
         os.makedirs(self.output_path, exist_ok=True)
 
         now = datetime.now(timezone("Asia/Seoul"))
